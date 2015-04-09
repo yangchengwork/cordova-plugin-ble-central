@@ -35,6 +35,8 @@ Install with Cordova CLI
 ## Methods
 
 - [ble.scan](#scan)
+- [ble.startScan](#startscan)
+- [ble.stopScan](#stopscan)
 - [ble.connect](#connect)
 - [ble.disconnect](#disconnect)
 - [ble.read](#read)
@@ -42,10 +44,8 @@ Install with Cordova CLI
 - [ble.writeWithoutResponse](#writewithoutresponse)
 - [ble.startNotification](#startnotification)
 - [ble.stopNotification](#stopnotification)
-- [ble.indicate](#indicate)
 - [ble.isEnabled](#isenabled)
 - [ble.isConnected](#isconnected)
-
 
 ## scan
 
@@ -55,7 +55,7 @@ Scan and discover BLE peripherals.
 
 ### Description
 
-Function `scan` scans for BLE devices.  The success callback is called each time a peripheral is discovered.
+Function `scan` scans for BLE devices.  The success callback is called each time a peripheral is discovered. Scanning automatically stops after the specified number of seconds.
 
     {
         "name": "TI SensorTag",
@@ -70,7 +70,7 @@ Advertising information format varies depending on your platform. See [Advertisi
 
 - __services__: List of services to discover, or [] to find all devices
 - __seconds__: Number of seconds to run discovery
-- __success__: Success callback function that is invoked with a list of bonded devices.
+- __success__: Success callback function that is invoked which each discovered device.
 - __failure__: Error callback function, invoked when error occurs. [optional]
 
 ### Quick Example
@@ -79,6 +79,78 @@ Advertising information format varies depending on your platform. See [Advertisi
         console.log(JSON.stringify(device));
     }, failure);
 
+## startScan
+
+Scan and discover BLE peripherals.
+
+    ble.startScan(services, success, failure);
+
+### Description
+
+Function `startScan` scans for BLE devices.  The success callback is called each time a peripheral is discovered. Scanning will continue until `stopScan` is called.
+
+    {
+        "name": "TI SensorTag",
+        "id": "BD922605-1B07-4D55-8D09-B66653E51BBA",
+        "rssi": -79,
+        "advertising": /* ArrayBuffer or map */
+    }
+
+Advertising information format varies depending on your platform. See [Advertising Data](#advertising-data) for more information.
+
+### Parameters
+
+- __services__: List of services to discover, or [] to find all devices
+- __success__: Success callback function that is invoked which each discovered device.
+- __failure__: Error callback function, invoked when error occurs. [optional]
+
+### Quick Example
+
+    ble.startScan([], function(device) {
+        console.log(JSON.stringify(device));
+    }, failure);
+
+    setTimeout(ble.stopScan,
+        5000,
+        function() { console.log("Scan complete"); },
+        function() { console.log("stopScan failed"); }
+    );
+
+## stopScan
+
+Stop scanning for BLE peripherals.
+
+    ble.stopScan(success, failure);
+
+### Description
+
+Function `stopScan` stops scanning for BLE devices.
+
+### Parameters
+
+- __success__: Success callback function, invoked when scanning is stopped. [optional]
+- __failure__: Error callback function, invoked when error occurs. [optional]
+
+### Quick Example
+
+    ble.startScan([], function(device) {
+        console.log(JSON.stringify(device));
+    }, failure);
+
+    setTimeout(ble.stopScan,
+        5000,
+        function() { console.log("Scan complete"); },
+        function() { console.log("stopScan failed"); }
+    );
+
+    /* Alternate syntax
+    setTimeout(function() {
+        ble.stopScan(
+            function() { console.log("Scan complete"); },
+            function() { console.log("stopScan failed"); }
+        );
+    }, 5000);
+    */
 
 ## connect
 
@@ -116,7 +188,7 @@ Function `disconnect` disconnects the selected device.
 
 Reads the value of a characteristic.
 
-    ble.read(device_id, service_uuid, characteristic_uuid, success, failure) {;
+    ble.read(device_id, service_uuid, characteristic_uuid, success, failure);
 
 ### Description
 
@@ -172,11 +244,11 @@ Function `writeWithoutResponse` writes data to a characteristic without a respon
 
 Register to be notified when the value of a characteristic changes.
 
-    ble.startNotification(device_id, service_uuid, characteristic_uuid, success, failure) {;
+    ble.startNotification(device_id, service_uuid, characteristic_uuid, success, failure);
 
 ### Description
 
-Function `startNotification` registers a callback that is called when the value of the characteristic changes.
+Function `startNotification` registers a callback that is called when the value of a characteristic changes. This method handles both `notifications` and `indications`.
 
 Raw data is passed from native code to the success callback as an [ArrayBuffer](#typed-arrays).
 
@@ -192,7 +264,7 @@ Raw data is passed from native code to the success callback as an [ArrayBuffer](
 
 Stop being notified when the value of a characteristic changes.
 
-ble.stopNotification(device_id, service_uuid, characteristic_uuid, success, failure) {;
+ble.stopNotification(device_id, service_uuid, characteristic_uuid, success, failure);
 
 ### Description
 
@@ -204,26 +276,6 @@ Function `stopNotification` stops a previously registered notification callback.
 - __service_uuid__: UUID of the BLE service
 - __characteristic_uuid__: UUID of the BLE characteristic
 - __success__: Success callback function that is invoked when the notification is removed. [optional]
-- __failure__: Error callback function, invoked when error occurs. [optional]
-
-## indicate
-
-Register for an indication when the value of a characteristic changes.
-
-    ble.indicate(device_id, service_uuid, characteristic_uuid, success, failure) {;
-
-### Description
-
-Function `indicate` registers a callback that is called when the value of the characteristic changes. Indicate is similar to notify, except indicate sends a confirmation back to the peripheral when the value is read.
-
-Raw data is passed from native code to the success callback as an [ArrayBuffer](#typed-arrays).
-
-### Parameters
-
-- __device_id__: UUID or MAC address of the peripheral
-- __service_uuid__: UUID of the BLE service
-- __characteristic_uuid__: UUID of the BLE characteristic
-- __success__: Success callback function that is invoked when the connection is successful. [optional]
 - __failure__: Error callback function, invoked when error occurs. [optional]
 
 ## isConnected
@@ -409,6 +461,10 @@ This means that you need convert your data to ArrayBuffers before sending and fr
     }
 
 You can read more about typed arrays in these articles on [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays) and [HTML5 Rocks](http://www.html5rocks.com/en/tutorials/webgl/typed_arrays/).
+
+# UUIDs
+
+UUIDs are always strings and not numbers. Some 16-bit UUIDs, such as '2220' look like integers, but they're not. (The integer 2220 is 0x8AC in hex.) This isn't a problem with 128 bit UUIDs since they look like strings 82b9e6e1-593a-456f-be9b-9215160ebcac. All 16-bit UUIDs should also be passed to methods as strings.
 
 # License
 

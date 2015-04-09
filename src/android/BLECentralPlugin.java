@@ -36,6 +36,9 @@ public class BLECentralPlugin extends CordovaPlugin implements BluetoothAdapter.
 
     // actions
     private static final String SCAN = "scan";
+    private static final String START_SCAN = "startScan";
+    private static final String STOP_SCAN = "stopScan";
+
     private static final String LIST = "list";
 
     private static final String CONNECT = "connect";
@@ -79,6 +82,16 @@ public class BLECentralPlugin extends CordovaPlugin implements BluetoothAdapter.
             UUID[] serviceUUIDs = parseServiceUUIDList(args.getJSONArray(0));
             int scanSeconds = args.getInt(1);
             findLowEnergyDevices(callbackContext, serviceUUIDs, scanSeconds);
+
+        } else if (action.equals(START_SCAN)) {
+
+            UUID[] serviceUUIDs = parseServiceUUIDList(args.getJSONArray(0));
+            findLowEnergyDevices(callbackContext, serviceUUIDs, -1);
+
+        } else if (action.equals(STOP_SCAN)) {
+
+            bluetoothAdapter.stopLeScan(this);
+            callbackContext.success();
 
         } else if (action.equals(LIST)) {
 
@@ -254,16 +267,22 @@ public class BLECentralPlugin extends CordovaPlugin implements BluetoothAdapter.
 
         discoverCallback = callbackContext;
 
-        bluetoothAdapter.startLeScan(serviceUUIDs, this);
+        if (serviceUUIDs.length > 0) {
+            bluetoothAdapter.startLeScan(serviceUUIDs, this);
+        } else {
+            bluetoothAdapter.startLeScan(this);
+        }
 
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                LOG.d(TAG, "Stopping Scan");
-                BLECentralPlugin.this.bluetoothAdapter.stopLeScan(BLECentralPlugin.this);
-            }
-        }, scanSeconds * 1000);
+        if (scanSeconds > 0) {
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    LOG.d(TAG, "Stopping Scan");
+                    BLECentralPlugin.this.bluetoothAdapter.stopLeScan(BLECentralPlugin.this);
+                }
+            }, scanSeconds * 1000);
+        }
 
         PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
         result.setKeepCallback(true);
