@@ -46,6 +46,8 @@ Install with Cordova CLI
 - [ble.stopNotification](#stopnotification)
 - [ble.isEnabled](#isenabled)
 - [ble.isConnected](#isconnected)
+- [ble.showBluetoothSettings](#showbluetoothsettings)
+- [ble.enable](#enable)
 
 ## scan
 
@@ -332,6 +334,61 @@ Function `isEnabled` calls the success callback when Bluetooth is enabled and th
         }
     );
 
+## showBluetoothSettings
+
+Show the Bluetooth settings on the device.
+
+    ble.showBluetoothSettings(success, failure);
+
+### Description
+
+Function `showBluetoothSettings` opens the Bluetooth settings for the operating systems.
+
+#### iOS
+
+`showBluetoothSettings` is not supported on iOS.
+
+### Parameters
+
+- __success__: Success callback function [optional]
+- __failure__: Error callback function, invoked when error occurs. [optional]
+
+### Quick Example
+
+    ble.showBluetoothSettings();
+
+## enable
+
+Enable Bluetooth on the device.
+
+    ble.enable(success, failure);
+
+### Description
+
+Function `enable` prompts the user to enable Bluetooth.
+
+#### Android
+
+`enable` is only supported on Android and does not work on iOS.
+
+If `enable` is called when Bluetooth is already enabled, the user will not prompted and the success callback will be invoked.
+
+### Parameters
+
+- __success__: Success callback function, invoked if the user enabled Bluetooth.
+- __failure__: Error callback function, invoked if the user does not enabled Bluetooth.
+
+### Quick Example
+
+    ble.enable(
+        function() {
+            console.log("Bluetooth is enabled");
+        },
+        function() {
+            console.log("The user did *not* enable Bluetooth");
+        }
+    );
+
 # Peripheral Data
 
 Peripheral Data is passed to the success callback when scanning and connecting. Limited data is passed when scanning.
@@ -465,6 +522,28 @@ You can read more about typed arrays in these articles on [MDN](https://develope
 # UUIDs
 
 UUIDs are always strings and not numbers. Some 16-bit UUIDs, such as '2220' look like integers, but they're not. (The integer 2220 is 0x8AC in hex.) This isn't a problem with 128 bit UUIDs since they look like strings 82b9e6e1-593a-456f-be9b-9215160ebcac. All 16-bit UUIDs should also be passed to methods as strings.
+
+# Testing the Plugin
+
+Tests require the [Cordova Plugin Test Framework](https://github.com/apache/cordova-plugin-test-framework)
+
+Create a new project
+
+    git clone https://github.com/don/cordova-plugin-ble-central
+    cordova create ble-test com.example.ble.test BLETest
+    cd ble-test
+    cordova platform add android
+    cordova plugin add ../ble
+    cordova plugin add ../ble/tests
+    cordova plugin add cordova-plugin-test-framework
+
+Change the start page in `config.xml`
+
+    <content src="cdvtests/index.html" />
+
+Run the app on your phone
+
+    cordova run android --device
 
 # License
 
