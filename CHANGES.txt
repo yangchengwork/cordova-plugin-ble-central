@@ -1,3 +1,48 @@
+= 1.1.0 =
+Add documentation about receiving notifications in the background on iOS #169
+Add option to report duplicates during scan #172 Thanks Chris Armstrong
+Read RSSI value from an active BLE connection #171 Thanks Chris Armstrong
+Register for callbacks on Bluetooth state change #136 Thanks Ryan Harvey
+Fix example for write characteristic #195 Thanks Wynout van der Veer
+Fix documentation for write & writeWithoutResponse #193 Thanks Blake Parkinson
+Update CC2650 example #200 Thanks jplourenco
+Connect peripheral with missing ble-flag (Android SDK 23) #226 Thanks PeacePan
+
+= 1.0.6 =
+Fix compile error with Cordova 5.x #219
+
+= 1.0.5 =
+Request Permissions for Android 6.0 (API level 23) #182
+Update documentation for isEnabled #170
+
+= 1.0.4 =
+Fix compile error with ios@4.0.1 #161
+
+= 1.0.3 =
+Don't block UI thread on Android when starting scan #121 Thanks Kelly Campbell
+Return characteristic even if properties don't match #132 #113 Thanks kanayo
+StopNotification for Android fixes #51
+Fix conflicts with the BluetoothSerial plugin #114
+
+= 1.0.2 =
+Update plugin id for examples
+Fix npm keywords
+
+= 1.0.1 =
+Handle services that reuse UUIDs across characteristics #82 #94 Thanks ggordan
+Disconnect cancels pending connections on iOS #93 Thanks rrharvey
+Add dummy browser platform implementation for better PhoneGap developer app support #87 #90 Thanks surajpindoria
+Replace notify in examples with startNotification #63
+Stop notification from stacking on Android #71 Thanks charlesalton
+Connect failure callback returns the peripheral #16
+Better log message for unsupported iOS hardware #60
+Update bluefruitle example to work with new versions of the hardware
+
+= 1.0.0 =
+Change plugin id cordova-plugin-ble-central
+Move to NPM #86
+iOS 9 #62 Thanks Khashayar Pourdeilami
+
 = 0.1.9 =
 Add start of WP8 for PGDA
 

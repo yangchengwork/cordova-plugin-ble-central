@@ -24,8 +24,8 @@ static char ADVERTISEMENT_RSSI_IDENTIFER;
 @implementation CBPeripheral(com_megster_ble_extension)
 
 -(NSString *)uuidAsString {
-    if ([self UUID]) {
-        return (__bridge_transfer NSString *)CFUUIDCreateString(NULL, self.UUID);
+    if (self.identifier.UUIDString) {
+        return self.identifier.UUIDString;
     } else {
         return @"";
     }
@@ -33,10 +33,9 @@ static char ADVERTISEMENT_RSSI_IDENTIFER;
 
 
 -(NSDictionary *)asDictionary {
-
     NSString *uuidString = NULL;
-    if ([self UUID]) {
-        uuidString = (__bridge_transfer NSString *)CFUUIDCreateString(NULL, self.UUID);
+    if (self.identifier.UUIDString) {
+        uuidString = self.identifier.UUIDString;
     } else {
         uuidString = @"";
     }
@@ -129,6 +128,22 @@ static char ADVERTISEMENT_RSSI_IDENTIFER;
         [dict removeObjectForKey:CBAdvertisementDataServiceUUIDsKey];
         [dict setObject:serviceUUIDStrings forKey:CBAdvertisementDataServiceUUIDsKey];
 
+    }
+
+    // Solicited Services UUIDs is an array of CBUUIDs, convert into Strings
+    NSMutableArray *solicitiedServiceUUIDs = [dict objectForKey:CBAdvertisementDataSolicitedServiceUUIDsKey];
+    NSMutableArray *solicitiedServiceUUIDStrings;
+    if (solicitiedServiceUUIDs) {
+        // NSLog(@"%@", solicitiedServiceUUIDs);
+        solicitiedServiceUUIDStrings = [[NSMutableArray alloc] initWithCapacity:solicitiedServiceUUIDs.count];
+
+        for (CBUUID *uuid in solicitiedServiceUUIDs) {
+            [solicitiedServiceUUIDStrings addObject:[uuid UUIDString]];
+        }
+
+        // replace the UUID list with list of strings
+        [dict removeObjectForKey:CBAdvertisementDataSolicitedServiceUUIDsKey];
+        [dict setObject:solicitiedServiceUUIDStrings forKey:CBAdvertisementDataSolicitedServiceUUIDsKey];
     }
 
     // Convert the manufacturer data
@@ -242,7 +257,7 @@ id dataToArrayBuffer(NSData* data)
 {
     return @{
              @"CDVType" : @"ArrayBuffer",
-             @"data" :[data base64EncodedString]
+             @"data" :[data base64EncodedStringWithOptions:0]
              };
 }
 
@@ -265,4 +280,3 @@ id dataToArrayBuffer(NSData* data)
 }
 
 @end
-

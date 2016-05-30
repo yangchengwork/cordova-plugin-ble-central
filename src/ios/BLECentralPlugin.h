@@ -21,17 +21,19 @@
 
 #import <Cordova/CDV.h>
 #import <CoreBluetooth/CoreBluetooth.h>
-#import "Foo.h"
+#import "BLECommandContext.h"
 #import "CBPeripheral+Extensions.h"
 
 @interface BLECentralPlugin : CDVPlugin <CBCentralManagerDelegate, CBPeripheralDelegate> {
     NSString* discoverPeripherialCallbackId;
+    NSString* stateCallbackId;
     NSMutableDictionary* connectCallbacks;
     NSMutableDictionary *readCallbacks;
     NSMutableDictionary *writeCallbacks;
     NSMutableDictionary *notificationCallbacks;
     NSMutableDictionary *stopNotificationCallbacks;
     NSMutableDictionary *connectCallbackLatches;
+    NSMutableDictionary *readRSSICallbacks;
 }
 
 @property (strong, nonatomic) NSMutableSet *peripherals;
@@ -39,6 +41,7 @@
 
 - (void)scan:(CDVInvokedUrlCommand *)command;
 - (void)startScan:(CDVInvokedUrlCommand *)command;
+- (void)startScanWithOptions:(CDVInvokedUrlCommand *)command;
 - (void)stopScan:(CDVInvokedUrlCommand *)command;
 
 - (void)connect:(CDVInvokedUrlCommand *)command;
@@ -51,10 +54,15 @@
 - (void)startNotification:(CDVInvokedUrlCommand *)command;
 - (void)stopNotification:(CDVInvokedUrlCommand *)command;
 
-- (void)indicate:(CDVInvokedUrlCommand *)command;
-
 - (void)isEnabled:(CDVInvokedUrlCommand *)command;
 - (void)isConnected:(CDVInvokedUrlCommand *)command;
+
+- (void)startStateNotifications:(CDVInvokedUrlCommand *)command;
+- (void)stopStateNotifications:(CDVInvokedUrlCommand *)command;
+
+- (void)onReset;
+
+- (void)readRSSI:(CDVInvokedUrlCommand *)command;
 
 @end
 
